@@ -1,0 +1,98 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f5f5; /* Light background for contrast */
+    margin: 0;
+    padding: 0;
+    margin-left: 200px; /* Offset content by updated navbar width */
+}
+
+.navbar {
+    display: flex;
+    flex-direction: column; /* Arrange items vertically */
+    align-items: flex-start; /* Align items to the start of the column */
+    background: linear-gradient(to bottom, #001f3f, #003366); /* Gradient for vertical navbar */
+    padding: 20px 10px; /* Adjust padding for a vertical layout */
+    height: 100vh; /* Full height of the viewport */
+    width: 200px; /* Reduced width for the navbar */
+    position: fixed; /* Stick the navbar to the left side */
+    top: 0;
+    left: 0;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2); /* Shadow for separation */
+}
+
+.navbar-heading {
+    color: #fff; /* Changed text color to white */
+    text-align: center; /* Center-align the text */
+    margin-bottom: 20px;
+    font-size: 24px; /* Adjust font size if needed */
+}
+
+.navbar a {
+    color: #fff;
+    text-align: left; /* Align text to the left */
+    padding: 12px 20px;
+    text-decoration: none;
+    font-size: 18px;
+    width: 100%; /* Make links take up full width */
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.navbar a:hover {
+    background-color: rgba(255, 255, 255, 0.3); /* Semi-transparent white */
+    color: #000;
+    border-radius: 5px; /* Slight rounding for links */
+    transform: translateX(10px); /* Slight horizontal movement */
+}
+
+.card {
+    border: none;
+    padding: 30px;
+    background: linear-gradient(135deg, #77a35c 0%, #4a7c33 100%); /* Gradient background for card */
+    border-radius: 15px;
+    margin: 20px auto;
+    height: 400px; /* Increased height for better content space */
+    width: 350px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%; /* Make it responsive */
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%; /* Make full width */
+}
+
+.form-group label {
+    font-size: 20px; /* Larger label font size */
+    margin-bottom: 5px; /* Spacing below label */
+    color: #333; /* Darker text for contrast */
+}
+
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group input[type="number"],
+.form-group select {
+    font-size: 16px;
+    padding: 10px;
+    border: 2px solid #77a35c; /* Border color matching the card */
+    border-radius: 5px;
+    transition: border-color 0.3s, box-shadow 0.3s; /* Smooth transitions */
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="date"]:focus,
+.form-group input[type="number"]:focus,
+.form-group select:focus {
+    border-color: #4a7c33; /* Change border color on focus */
+    box-shadow: 0 0 5px rgba(114, 191, 71, 0.5); /* Subtle glow effect */
+    outline: none; /* Remove default outline */
+}

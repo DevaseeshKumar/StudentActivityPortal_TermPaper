@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  spring-boot:
+    build:
+      context: .
+    ports:
+      - "1127:1127"
+    depends_on:
+      - mysql
+    environment:
+      - SPRING_APPLICATION_NAME=StudentActivityPortal
+      - SERVER_PORT=1127
+      - SPRING_DATASOURCE_DRIVER-CLASS-NAME=com.mysql.cj.jdbc.Driver
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/jfsdsdp27
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=Devaseesh*2005
+      - SPRING_JPA_HIBERNATE_DDL-AUTO=update
+      - SPRING_JPA_SHOW-SQL=true
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
+      - SPRING_MVC_VIEW_PREFIX=/
+      - SPRING_MVC_VIEW_SUFFIX=.jsp
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: Devaseesh*2005
+      MYSQL_DATABASE: jfsdsdp27
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
