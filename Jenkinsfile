@@ -1,7 +1,9 @@
 pipeline {
     agent any
 
-    
+    environment {
+        TRIVY_SEVERITY = 'CRITICAL,HIGH'
+    }
 
     stages {
         stage('Checkout') {
@@ -16,30 +18,49 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Dependency Vulnerability Scan') {
             steps {
-                echo "Test Completed"
+                bat 'mvn org.owasp:dependency-check-maven:check -Dformat=ALL'
+                archiveArtifacts artifacts: '**/dependency-check-report.html', fingerprint: true
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                bat 'docker build -t student-portal:latest .'
+            }
+        }
+
+        stage('Container Image Scan - Trivy') {
+            steps {
+                bat 'trivy image --severity %TRIVY_SEVERITY% --no-progress --exit-code 0 student-portal:latest > trivy-report.txt'
+                archiveArtifacts artifacts: 'trivy-report.txt', fingerprint: true
             }
         }
 
         stage('Start Services with Docker Compose') {
             steps {
-                script {
-                    bat 'docker-compose up -d --build'
-                }
+                bat 'docker-compose up -d --build'
+            }
+        }
+
+        stage('Dynamic Security Testing - OWASP ZAP') {
+            steps {
+                bat 'docker run -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:1127 -r zap-report.html || exit 0'
+                archiveArtifacts artifacts: 'zap-report.html', fingerprint: true
             }
         }
     }
 
     post {
         success {
-            echo 'Pipeline executed successfully!'
+            echo '✅ DevSecOps pipeline executed successfully!'
         }
         failure {
-            echo 'Pipeline failed. Please check logs.'
+            echo '❌ Pipeline failed. Please check the logs.'
         }
         cleanup {
-            cleanWs() // only cleans Jenkins workspace, not containers
+            cleanWs()
         }
     }
 }
