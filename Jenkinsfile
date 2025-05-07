@@ -41,8 +41,8 @@ pipeline {
         stage('Start Services with Docker Compose') {
             steps {
                 bat 'docker-compose up -d --build'
-                // Wait for services to be up
-                bat 'timeout /t 30'
+                // Wait for the Spring Boot app to be ready
+                bat 'ping -n 30 127.0.0.1 > nul'
             }
         }
 
