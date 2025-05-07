@@ -47,14 +47,15 @@ pipeline {
         }
 
         stage('Dynamic Security Testing - OWASP ZAP') {
-            steps {
-                bat '''
-                docker pull owasp/zap2docker-stable
-                docker run --rm -v %cd%:/zap/wrk:rw owasp/zap2docker-stable zap-baseline.py -t http://host.docker.internal:1127 -r zap-report.html || exit 0
-                '''
-                archiveArtifacts artifacts: 'zap-report.html', fingerprint: true
-            }
-        }
+    steps {
+        bat '''
+        docker pull ghcr.io/zaproxy/zap-baseline
+        docker run --rm -v %cd%:/zap/wrk:rw --network=host ghcr.io/zaproxy/zap-baseline -t http://host.docker.internal:1127 -r zap-report.html || exit 0
+        '''
+        archiveArtifacts artifacts: 'zap-report.html', fingerprint: true
+    }
+}
+
     }
 
     post {
