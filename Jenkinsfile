@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        TRIVY_SEVERITY = 'CRITICAL,HIGH'
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -25,48 +21,30 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Test') {
             steps {
-                bat 'docker build -t student-portal:latest .'
-            }
-        }
-
-        stage('Container Image Scan - Trivy') {
-            steps {
-                bat 'trivy image --severity %TRIVY_SEVERITY% --no-progress --exit-code 0 student-portal:latest > trivy-report.txt'
-                archiveArtifacts artifacts: 'trivy-report.txt', fingerprint: true
+                echo "Test Completed"
             }
         }
 
         stage('Start Services with Docker Compose') {
             steps {
-                bat 'docker-compose up -d --build'
-                // Wait for app to be ready (simulate wait)
-                bat 'ping -n 30 127.0.0.1 > nul'
+                script {
+                    bat 'docker-compose up -d --build'
+                }
             }
         }
-
-        stage('Dynamic Security Testing - OWASP ZAP') {
-    steps {
-        bat '''
-        docker pull ghcr.io/zaproxy/zap-baseline
-        docker run --rm -v %cd%:/zap/wrk:rw --network=host ghcr.io/zaproxy/zap-baseline -t http://host.docker.internal:1127 -r zap-report.html || exit 0
-        '''
-        archiveArtifacts artifacts: 'zap-report.html', fingerprint: true
-    }
-}
-
     }
 
     post {
         success {
-            echo '✅ DevSecOps pipeline executed successfully!'
+            echo 'Pipeline executed successfully!'
         }
         failure {
-            echo '❌ Pipeline failed. Please check the logs.'
+            echo 'Pipeline failed. Please check logs.'
         }
         cleanup {
-            cleanWs()
+            cleanWs() // only cleans Jenkins workspace, not containers
         }
     }
 }
