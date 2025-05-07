@@ -41,12 +41,16 @@ pipeline {
         stage('Start Services with Docker Compose') {
             steps {
                 bat 'docker-compose up -d --build'
+                // Wait for services to be up
+                bat 'timeout /t 30'
             }
         }
 
         stage('Dynamic Security Testing - OWASP ZAP') {
             steps {
-                bat 'docker run -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:1127 -r zap-report.html || exit 0'
+                bat '''
+                docker run --rm -v %cd%:/zap/wrk:rw --network=host ghcr.io/zaproxy/zap-baseline -t http://host.docker.internal:1127 -r zap-report.html || exit 0
+                '''
                 archiveArtifacts artifacts: 'zap-report.html', fingerprint: true
             }
         }
