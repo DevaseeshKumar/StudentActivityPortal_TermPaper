@@ -41,7 +41,7 @@ pipeline {
         stage('Start Services with Docker Compose') {
             steps {
                 bat 'docker-compose up -d --build'
-                // Wait for the Spring Boot app to be ready
+                // Wait for app to be ready (simulate wait)
                 bat 'ping -n 30 127.0.0.1 > nul'
             }
         }
@@ -49,7 +49,8 @@ pipeline {
         stage('Dynamic Security Testing - OWASP ZAP') {
             steps {
                 bat '''
-                docker run --rm -v %cd%:/zap/wrk:rw --network=host ghcr.io/zaproxy/zap-baseline -t http://host.docker.internal:1127 -r zap-report.html || exit 0
+                docker pull owasp/zap2docker-stable
+                docker run --rm -v %cd%:/zap/wrk:rw owasp/zap2docker-stable zap-baseline.py -t http://host.docker.internal:1127 -r zap-report.html || exit 0
                 '''
                 archiveArtifacts artifacts: 'zap-report.html', fingerprint: true
             }
