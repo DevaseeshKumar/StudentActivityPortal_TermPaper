@@ -22,7 +22,8 @@ pipeline {
                         -Dformat=ALL ^
                         -DoutputDirectory=dependency-check-report
                 """
-                archiveArtifacts artifacts: 'dependency-check-report/*', fingerprint: true
+                archiveArtifacts artifacts: 'target/dependency-check-report.html, target/dependency-check-report.json', fingerprint: true
+
             }
         }
 
