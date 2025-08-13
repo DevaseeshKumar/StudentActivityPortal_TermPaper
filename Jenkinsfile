@@ -21,9 +21,37 @@ pipeline {
             }
         }
 
+        stage('Supply Chain Attack Checks') {
+            steps {
+                script {
+                    // Example: provenance verification (Sigstore Cosign) & package name check
+                    bat 'cosign verify --key public.key my-docker-image:latest || exit 1'
+                    // Optional: run a Python script to detect typosquatting in dependency list
+                    bat 'python scripts/typosquat_check.py'
+                }
+            }
+        }
+
         stage('Test') {
             steps {
                 echo "Test Completed"
+            }
+        }
+
+        stage('Container Image Security Scan') {
+            steps {
+                script {
+                    // Build image
+                    bat 'docker build -t student-activity-portal:latest .'
+                    // Scan image with Trivy
+                    bat 'trivy image --severity HIGH,CRITICAL --exit-code 1 --no-progress student-activity-portal:latest'
+                    // Run CIS Docker Benchmark (requires Docker-bench-security tool installed)
+                    bat 'docker run --rm --net host --pid host --userns host --cap-add audit_control \
+                        -e DOCKER_CONTENT_TRUST=1 \
+                        -v /etc:/etc:ro \
+                        -v /usr/bin/docker-containerd:/usr/bin/docker-containerd:ro \
+                        docker/docker-bench-security'
+                }
             }
         }
 
@@ -34,17 +62,23 @@ pipeline {
                 }
             }
         }
+
+        stage('Archive Security Reports') {
+            steps {
+                archiveArtifacts artifacts: '**/dependency-check-report.html,**/trivy-report.html', fingerprint: true
+            }
+        }
     }
 
     post {
         success {
-            echo 'Pipeline executed successfully!'
+            echo 'Pipeline executed successfully with enhanced security checks!'
         }
         failure {
-            echo 'Pipeline failed. Please check logs.'
+            echo 'Pipeline failed. Please check logs and security reports.'
         }
         cleanup {
-            cleanWs() // only cleans Jenkins workspace, not containers
+            cleanWs() // Cleans workspace, containers remain unless manually stopped
         }
     }
 }
